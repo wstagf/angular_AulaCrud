@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
+import { AppService } from './app.service';
 import { Produto } from './model/produto.model';
 
 @Component({
@@ -9,7 +10,7 @@ import { Produto } from './model/produto.model';
 })
 export class AppComponent {
 
-  constructor(private http: HttpClient) {
+  constructor(private service: AppService) {
 
   }
   title = 'crud';
@@ -48,12 +49,7 @@ export class AppComponent {
 
 
 
-  async obterProdutos() {
-    this.http.get<Produto[]>('http://192.168.1.19:3000/produto').subscribe((ret) => {
-      this.listaDeProduto = ret;
-      console.log(ret);
-    });
-  }
+
 
 
   onDeleteConfirm(event: any) {
@@ -62,7 +58,7 @@ export class AppComponent {
     if (window.confirm('Are you sure you want to delete?')) {
       event.confirm.resolve();
       alert(event.data.id);
-      this.apagarRegistro(event.data.id);
+      this.service.apagarRegistro(event.data.id);
     } else {
       event.confirm.reject();
     }
@@ -71,42 +67,25 @@ export class AppComponent {
   onCreateConfirm(event: any) {
     console.log("Create Event In Console")
     const newProduto = new Produto(event.newData.id, event.newData.nome, event.newData.codigo, event.newData.codigoncm,);
-    this.inserirRegistro(newProduto);
+    this.service.inserirRegistro(newProduto);
   }
 
   onEditConfirm(event: any) {
     console.log("Edit Event In Console")
     console.log(event);
     const newProduto = new Produto(event.newData.id, event.newData.nome, event.newData.codigo, event.newData.codigoncm,);
-    this.atualizarRegistro(newProduto);
+    this.service.atualizarRegistro(newProduto);
+  }
+
+
+  obterProdutos() {
+    this.service.obterProdutos().subscribe((ret) => {
+      this.listaDeProduto = ret;
+    })
   }
 
 
 
-  apagarRegistro(id: number) {
-    this.http.delete('http://192.168.1.19:3000/produto/' + id).subscribe((ret) => {
-      alert('Produto excluido')
-    });
-  }
-
-
-  inserirRegistro(p: Produto) {
-    const data = {
-      nome: p.nome,
-      codigo: p.codigo,
-      codigoncm: p.codigoncm,
-    }
-    this.http.post('http://192.168.1.19:3000/produto/', data).subscribe((ret) => {
-      alert('Produto adicionado')
-    });
-  }
-
-  atualizarRegistro(p: Produto) {
-
-    this.http.put('http://192.168.1.19:3000/produto/' + p.id, p).subscribe((ret) => {
-      alert('Produto editado')
-    });
-  }
 
 
 }
